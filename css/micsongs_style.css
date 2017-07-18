@@ -1,0 +1,20 @@
+.linha{
+	width: 100%;
+}
+.coluna-50{
+	width: 47%;
+	float: left;
+	display: block;
+	overflow: hidden;
+	padding: 10px;
+}
+.song-input{
+	width: 100%;
+}
+/* Small Devices, Tablets */
+@media (max-width : 768px) {
+	.coluna-50{
+		width: 100%;
+		float: none;
+	}
+}
