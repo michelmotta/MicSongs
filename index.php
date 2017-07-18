@@ -20,8 +20,10 @@ class micsongs
   	public function __construct() 
   	{
 
-		add_action('init', array($this, 'micsongs_post_type'));
-    	//add_action('init', array($this, 'create_micssongs_taxonomies'), 0);
+		  add_action('init', array($this, 'micsongs_post_type'));
+      add_action('save_post', array($this, 'micsongs_meta_save'));
+
+		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
   
   	}
 
@@ -61,7 +63,7 @@ class micsongs
       	'hierarchical' => false,
       	'menu_position' => null,
       	'register_meta_box_cb' => array($this, 'micsongs_meta_box'),       
-      	'supports' => array('title', 'editor','thumbnail')
+      	'supports' => array('title', 'thumbnail')
     	);
 
     	register_post_type('micsongs' , $args );
@@ -69,34 +71,100 @@ class micsongs
   	}
 
   	/**
-  * This function creates custom meta box to micsongs custom post type
+    * This function creates custom meta box to micsongs custom post type
+    * @param none
+    * @return void
+    */
+    function micsongs_meta_box()
+    {        
+      add_meta_box('micsongs_meta_box', __('Informações da música'), array($this,'micsongs_meta_box_callback'), 'micsongs', 'normal', 'default');
+    }
+
+
+    /**
+    * This is a callback function for micslider_meta_box. This callback function generates html content to show inside the meta box
+    * @param $post
+    * @return void
+    */
+    function micsongs_meta_box_callback($post)
+    {
+      wp_nonce_field(basename( __FILE__ ), 'micsongs_nonce');
+      $micsongs_meta = get_post_meta($post->ID);
+      var_dump($micsongs_meta);
+    ?>
+   
+    <div class="linha">
+     	<div class="coluna-50">
+     		<label class="">Música</label><br>
+        	<input type="text" id="song-url" name="song-url" class="song-input" value="<?php if(isset($micsongs_meta['song-url'])) echo $micsongs_meta['song-url'][0]; ?>"/><br><br>
+
+        	<center><input id="micsong_upload_button" class="button button-primary button-large" type="button" value="Upload música" /></center>
+
+     	</div>
+     	<div class="coluna-50">
+     		<label class="">Autor</label><br>
+  	      <input type="text" name="song-author" class="song-input" value="<?php if(isset($micsongs_meta['song-author'])) echo $micsongs_meta['song-author'][0]; ?>"/><br>
+
+  	      <label class="">Descrição</label><br>
+  	      <textarea type="text" name="song-description" class="song-input"/>
+            <?php 
+              if(isset($micsongs_meta['song-description'])) 
+                echo $micsongs_meta['song-description'][0]; 
+            ?> 
+          </textarea>
+     	</div>
+      <div style="clear: both;"></div>
+    </div>
+    
+  <?php    
+  }
+
+  /**
+  * This function is initialize always when the custom post type micslider is saved. This function is responsible to validade and persist data.
+  * @param $post_id
+  * @return void
+  */
+  function micsongs_meta_save($post_id)
+  {
+   
+    $is_autosave = wp_is_post_autosave($post_id);
+    $is_revision = wp_is_post_revision($post_id);
+    $is_valid_nonce = (isset($_POST['micsongs_nonce']) && wp_verify_nonce($_POST['micsongs_nonce'], basename(__FILE__))) ? 'true' : 'false';
+
+    if($is_autosave || $is_revision || !$is_valid_nonce) 
+    {
+      return;
+    }
+
+    if(isset($_POST['song-url'])) 
+    {
+      update_post_meta($post_id, 'song-url', sanitize_text_field($_POST['song-url']));
+    }
+    if(isset($_POST['song-author'])) 
+    {
+      update_post_meta($post_id, 'song-author', sanitize_text_field($_POST['song-author']));
+    }
+    if(isset($_POST['song-description'])) 
+    {
+      update_post_meta($post_id, 'song-description', sanitize_text_field($_POST['song-description']));
+    }
+   
+  }
+
+  /**
+  * This function add Jquery script to open wordpress media uploader
   * @param none
   * @return void
   */
-  function micsongs_meta_box()
-  {        
-    add_meta_box('micsongs_meta_box', __('Upload de música'), array($this,'micsongs_meta_box_callback'), 'micsongs', 'normal', 'default');
-  }
-
-
-  /**
-  * This is a callback function for micslider_meta_box. This callback function generates html content to show inside the meta box
-  * @param $post
-  * @return void
-  */
-  function micsongs_meta_box_callback($post)
+  function micsongs_wp_enqueue_scripts() 
   {
-    wp_nonce_field(basename( __FILE__ ), 'micsongs_nonce');
-    $micsongs_meta = get_post_meta($post->ID);
-  ?>
-   
-    <p>
-      <label class="">Música</label><br>
-      <input type="text" name="song" class="regular-text" value="<?php if(isset($micsongs_meta['song'])) echo $micsongs_meta['song'][0]; ?>"/>
-    </p>
-   
-  <?php    
-  }
+		wp_enqueue_media();
+    wp_register_style('micsongs_style', plugins_url('MicSongs/css/micsongs_style.css'));
+		wp_enqueue_style('micsongs_style');
+    wp_register_script('micsongs_media', plugins_url('MicSongs/js/micsongs_media.js'), array('jquery'), '3.3.7', true );
+    wp_enqueue_script('micsongs_media');
+  }	
+  
 }
 
 new micsongs();
