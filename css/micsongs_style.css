@@ -8,6 +8,13 @@
 	overflow: hidden;
 	padding: 10px;
 }
+.coluna-30{
+	width: 30%;
+	float: left;
+	display: block;
+	overflow: hidden;
+	padding: 10px;
+}
 .song-input{
 	width: 100%;
 }
@@ -17,4 +24,13 @@
 		width: 100%;
 		float: none;
 	}
+	.coluna-30{
+		width: 100%;
+		float: none;
+	}
+}
+.micsongs-wrap{
+	background: #fff;
+	padding: 10px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
 }
