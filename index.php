@@ -26,6 +26,8 @@ class micsongs
       add_filter('manage_micsongs_posts_columns', array($this, 'micsongs_set_custom_edit_columns'));
       add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
 
+      add_action('admin_menu', array($this,'micsongs_options_page'));
+
 		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
   
   	}
@@ -231,6 +233,72 @@ class micsongs
   }
 
   /**
+  * Create a micslider_cat wordpress custom taxonomy 
+  * @param none
+  * @return void
+  */
+  function micsongs_options_page()
+  {
+    add_submenu_page( 'edit.php?post_type=micsongs', 'Shortcode', 'Shortcode', 'manage_options', 'micsongs-options', array($this, 'micsongs_options_page_callback'));
+  }
+
+  /**
+  * This is a callback function for micslider_options_page. This callback function generates html content to show inside the options page
+  * @param none
+  * @return void
+  */
+  function micsongs_options_page_callback() 
+  { 
+    $terms = get_terms( array(
+      'taxonomy' => 'micsongs_cat',
+      'hide_empty' => false,
+    ));
+    ?>
+      <div class="micsongs-wrap wrap">
+
+        <h1>MicSongs Shortcode Generator</h1>
+        <div class="linha">
+          <div class="coluna-30">
+            <h2>Músicas Separadas</h2>
+            <h2>Shortcode MS</h2>
+            <p id="shortcode1">[micslider categoria="" quantidade="1"]</p>
+          </div>
+          <div class="coluna-30">
+            <h2>Músicas em Playlist</h2>
+            <h2>Shortcode MP</h2>
+            <p id="shortcode2">[micslider categoria="" quantidade="1"]</p>
+          </div> 
+          <div class="coluna-30">
+            <h2>Músicas por Categorias</h2>
+            <select id="cat" onchange="myFunction()">
+              <option value=''>Todas as categorias</option>
+              <?php
+                foreach ($terms as $term) {
+                  echo '<option value="' . $term->name . '">' . $term->name . '</option>';
+                }
+              ?>
+            </select>
+            <h2>Shortcode MC</h2>
+            <p id="shortcode3">[micslider categoria="" quantidade="1"]</p>
+          </div>
+          <div style="clear: both;"></div>
+        </div>
+      </div>
+      <script>
+        function myFunction() {
+
+          var cat = document.getElementById("cat").value;
+          var qtd = document.getElementById("qtd").value;
+
+          document.getElementById("shortcode1").innerHTML = "[micslider categoria=&quot;" + cat + "&quot; quantidade=&quot;" + qtd + "&quot;]'";
+
+
+        }
+      </script>
+    <?php
+  }
+
+  /**
   * This function add Jquery script to open wordpress media uploader
   * @param none
   * @return void
@@ -238,10 +306,19 @@ class micsongs
   function micsongs_wp_enqueue_scripts() 
   {
 		wp_enqueue_media();
+
     wp_register_style('micsongs_style', plugins_url('MicSongs/css/micsongs_style.css'));
-		wp_enqueue_style('micsongs_style');
+    wp_enqueue_style('micsongs_style');
+
+    wp_register_style('micsongs_select2css', plugins_url('MicSongs/css/select2.min.css'));
+    wp_enqueue_style('micsongs_select2css');
+
     wp_register_script('micsongs_media', plugins_url('MicSongs/js/micsongs_media.js'), array('jquery'), '3.3.7', true );
     wp_enqueue_script('micsongs_media');
+
+    wp_register_script('micsongs_select2js', plugins_url('MicSongs/js/select2.min.js'), array('jquery'), '3.3.7', true );
+    wp_enqueue_script('micsongs_select2js');
+    
   }	
   
 }
