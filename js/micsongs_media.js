@@ -1,6 +1,7 @@
 jQuery(function($) {
   $(document).ready(function(){
   	$('#micsong_upload_button').click(open_media_window);
+    $(".js-example-basic-single").select2();
   });
 
   function open_media_window() {
