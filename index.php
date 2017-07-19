@@ -261,16 +261,16 @@ class micsongs
           <div class="coluna-30">
             <h2>Músicas Separadas</h2>
             <h2>Shortcode MS</h2>
-            <p id="shortcode1">[micslider categoria="" quantidade="1"]</p>
+            <p id="shortcode1">[ms categoria=""]</p>
           </div>
           <div class="coluna-30">
             <h2>Músicas em Playlist</h2>
             <h2>Shortcode MP</h2>
-            <p id="shortcode2">[micslider categoria="" quantidade="1"]</p>
+            <p id="shortcode2">[mp categoria=""]</p>
           </div> 
           <div class="coluna-30">
-            <h2>Músicas por Categorias</h2>
-            <select id="cat" onchange="myFunction()">
+            <h2>Músicas por Categorias (Playlist)</h2>
+            <select id="mc" onchange="micsongsMc()" class="select2">
               <option value=''>Todas as categorias</option>
               <?php
                 foreach ($terms as $term) {
@@ -279,22 +279,11 @@ class micsongs
               ?>
             </select>
             <h2>Shortcode MC</h2>
-            <p id="shortcode3">[micslider categoria="" quantidade="1"]</p>
+            <p id="shortcode3">[mc categoria=""]</p>
           </div>
           <div style="clear: both;"></div>
         </div>
       </div>
-      <script>
-        function myFunction() {
-
-          var cat = document.getElementById("cat").value;
-          var qtd = document.getElementById("qtd").value;
-
-          document.getElementById("shortcode1").innerHTML = "[micslider categoria=&quot;" + cat + "&quot; quantidade=&quot;" + qtd + "&quot;]'";
-
-
-        }
-      </script>
     <?php
   }
 
