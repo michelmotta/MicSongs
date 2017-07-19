@@ -12,7 +12,7 @@ jQuery(function($) {
         },
         multiple: false,
         button: {
-          text: 'Insert'
+          text: 'Inserir'
         }
       });
 
