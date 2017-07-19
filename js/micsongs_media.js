@@ -1,7 +1,7 @@
 jQuery(function($) {
   $(document).ready(function(){
   	$('#micsong_upload_button').click(open_media_window);
-    $(".js-example-basic-single").select2();
+    $(".select2").select2({ width: '100%' });
   });
 
   function open_media_window() {
@@ -29,3 +29,8 @@ jQuery(function($) {
     return false;
   }
 });
+
+function micsongsMc() {
+  var cat = document.getElementById("mc").value;
+  document.getElementById("shortcode3").innerHTML = "[mc categoria=&quot;" + cat + "&quot;]";
+}
