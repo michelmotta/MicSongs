@@ -21,7 +21,10 @@ class micsongs
   	{
 
 		  add_action('init', array($this, 'micsongs_post_type'));
+      add_action('init', array($this, 'create_micsongs_taxonomies'), 0);
       add_action('save_post', array($this, 'micsongs_meta_save'));
+      add_filter('manage_micsongs_posts_columns', array($this, 'micsongs_set_custom_edit_columns'));
+      add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
 
 		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
   
@@ -90,28 +93,22 @@ class micsongs
     {
       wp_nonce_field(basename( __FILE__ ), 'micsongs_nonce');
       $micsongs_meta = get_post_meta($post->ID);
-      var_dump($micsongs_meta);
     ?>
    
     <div class="linha">
      	<div class="coluna-50">
      		<label class="">Música</label><br>
-        	<input type="text" id="song-url" name="song-url" class="song-input" value="<?php if(isset($micsongs_meta['song-url'])) echo $micsongs_meta['song-url'][0]; ?>"/><br><br>
+        <input type="text" id="song-url" name="song-url" class="song-input" value="<?php if(isset($micsongs_meta['song-url'])) echo $micsongs_meta['song-url'][0]; ?>" readonly="readonly"/><br><br>
 
-        	<center><input id="micsong_upload_button" class="button button-primary button-large" type="button" value="Upload música" /></center>
+        <center><input id="micsong_upload_button" class="button button-primary button-large" type="button" value="Upload música" /></center>
 
      	</div>
      	<div class="coluna-50">
      		<label class="">Autor</label><br>
-  	      <input type="text" name="song-author" class="song-input" value="<?php if(isset($micsongs_meta['song-author'])) echo $micsongs_meta['song-author'][0]; ?>"/><br>
+        <input type="text" name="song-author" class="song-input" value="<?php if(isset($micsongs_meta['song-author'])) echo $micsongs_meta['song-author'][0]; ?>"/><br>
 
-  	      <label class="">Descrição</label><br>
-  	      <textarea type="text" name="song-description" class="song-input"/>
-            <?php 
-              if(isset($micsongs_meta['song-description'])) 
-                echo $micsongs_meta['song-description'][0]; 
-            ?> 
-          </textarea>
+        <label class="">Descrição</label><br>
+        <textarea type="text" name="song-description" class="song-input"/><?php if(isset($micsongs_meta['song-description'])) echo $micsongs_meta['song-description'][0]; ?></textarea>
      	</div>
       <div style="clear: both;"></div>
     </div>
@@ -132,23 +129,105 @@ class micsongs
     $is_valid_nonce = (isset($_POST['micsongs_nonce']) && wp_verify_nonce($_POST['micsongs_nonce'], basename(__FILE__))) ? 'true' : 'false';
 
     if($is_autosave || $is_revision || !$is_valid_nonce) 
-    {
       return;
-    }
 
     if(isset($_POST['song-url'])) 
-    {
       update_post_meta($post_id, 'song-url', sanitize_text_field($_POST['song-url']));
-    }
+  
     if(isset($_POST['song-author'])) 
-    {
       update_post_meta($post_id, 'song-author', sanitize_text_field($_POST['song-author']));
-    }
+
     if(isset($_POST['song-description'])) 
-    {
       update_post_meta($post_id, 'song-description', sanitize_text_field($_POST['song-description']));
-    }
    
+  }
+
+  /**
+  * This function creates a micslider_cat wordpress custom taxonomy to organize slider by custom post type 
+  * @param none
+  * @return void
+  */
+  function create_micsongs_taxonomies() 
+  {
+    $labels = array(
+      'name'  => _x('Categoria', 'taxonomy general name'),
+      'singular_name' => _x('Categoria', 'taxonomy singular name'),
+      'search_items'  => __('Procurar categorias'),
+      'all_items' => __('Todos as categorias'),
+      'parent_item' => __('Categorias semelhantes'),
+      'parent_item_colon' => __('Categoria semelhante:'),
+      'edit_item' => __('Editar categoria'),
+      'update_item' => __('Atualizar categoria'),
+      'add_new_item'  => __('Adicionar nova categoria'),
+      'new_item_name' => __('Nova categoria'),
+      'menu_name' => __('Categorias')
+    );
+    $args = array(
+      'hierarchical'  => true,
+      'labels'  => $labels,
+      'show_ui' => true,
+      'show_admin_column' => true,
+      'query_var' => true,
+      'rewrite' => array( 'slug' => 'micsongs_cat' ),
+    );
+    register_taxonomy('micsongs_cat', array('micsongs'), $args );
+  }
+
+  /**
+  * This function creates a custom columns display to wordpress admin view
+  * @param $columns
+  * @return $columns
+  */
+  function micsongs_set_custom_edit_columns($columns) 
+  {
+    $columns = array(
+      'cb' => '<input type="checkbox" />',
+      'title' => __('Title'),
+      'micsongs_icon' => __(''),
+      'micsongs_size' => __('Tempo da Música'),
+      'micsongs_categories' => __('Categorias'),
+      'date' => __('Date')
+    );
+    
+    return $columns;
+  }
+
+
+  /**
+  * This function generates content to the custom colums display
+  * @param none
+  * @return void
+  */
+  function micsongs_custom_column( $column, $post_id ) 
+  {
+    switch ( $column ) {
+      case 'micsongs_icon' :
+          echo '<div class="dashicons-before dashicons-format-audio"></div>';
+      break;
+
+      case 'micsongs_size' :
+
+        $micsongs_meta = get_post_meta($post_id);
+        $urlFile = $micsongs_meta['song-url'][0];
+
+        $attachment_id = attachment_url_to_postid( $urlFile );
+
+        $data = wp_get_attachment_metadata($attachment_id);
+
+        echo $data['length_formatted'];
+
+      break;
+
+      case 'micsongs_categories' :
+        $terms = get_the_terms($post_id, 'micsongs_cat');
+        if ($terms)
+          foreach ($terms as $term) {
+            echo $term->name . ',';
+          }
+        else
+          echo "<small>Sem Categoria</small >";
+      break;
+    }
   }
 
   /**
