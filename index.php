@@ -249,7 +249,12 @@ class micsongs
   */
   function micsongs_options_page_callback() 
   { 
-    $terms = get_terms( array(
+    $args = array(
+      'post_type' => 'micsongs'
+    );
+    $wp_query = new WP_Query( $args );
+
+    $termsMc = get_terms( array(
       'taxonomy' => 'micsongs_cat',
       'hide_empty' => false,
     ));
@@ -260,26 +265,40 @@ class micsongs
         <div class="linha">
           <div class="coluna-30">
             <h2>Músicas Separadas</h2>
+            <select id="ms" onchange="micsongsMs()" class="select2">
+            <?php if ($wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
+              <option value="<?php the_title();?>"><?php the_title();?></option>
+            <?php endwhile; wp_reset_query();  else: ?>
+              <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
+            <?php endif; ?>
+            </select>
             <h2>Shortcode MS</h2>
-            <p id="shortcode1">[ms categoria=""]</p>
+            <p id="shortcode1"></p>
           </div>
           <div class="coluna-30">
             <h2>Músicas em Playlist</h2>
+            <select id="mp" onchange="micsongsMp()" class="select2-tag">
+            <?php if ($wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
+              <option value="<?php the_ID();?>"><?php the_title();?></option>
+            <?php endwhile; wp_reset_query();  else: ?>
+              <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
+            <?php endif; ?>
+            </select>
             <h2>Shortcode MP</h2>
-            <p id="shortcode2">[mp categoria=""]</p>
+            <p id="shortcode2"></p>
           </div> 
           <div class="coluna-30">
             <h2>Músicas por Categorias (Playlist)</h2>
             <select id="mc" onchange="micsongsMc()" class="select2">
               <option value=''>Todas as categorias</option>
               <?php
-                foreach ($terms as $term) {
-                  echo '<option value="' . $term->name . '">' . $term->name . '</option>';
+                foreach ($termsMc as $termMc) {
+                  echo '<option value="' . $termMc->name . '">' . $termMc->name . '</option>';
                 }
               ?>
             </select>
             <h2>Shortcode MC</h2>
-            <p id="shortcode3">[mc categoria=""]</p>
+            <p id="shortcode3"></p>
           </div>
           <div style="clear: both;"></div>
         </div>
