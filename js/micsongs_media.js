@@ -2,6 +2,8 @@ jQuery(function($) {
   $(document).ready(function(){
   	$('#micsong_upload_button').click(open_media_window);
     $(".select2").select2({ width: '100%' });
+    $(".select2-tag").select2({ multiple: true, tags: true, width: '100%' });
+    $(".leaderMultiSelctdropdown").select2("val")
   });
 
   function open_media_window() {
@@ -30,7 +32,17 @@ jQuery(function($) {
   }
 });
 
+function micsongsMs() {
+  var name = document.getElementById("ms").value;
+  document.getElementById("shortcode1").innerHTML = "[mss musica=&quot;" + name + "&quot;]";
+}
+
+function micsongsMp() {
+  var values = jQuery('.select2-tag').select2("val");
+  document.getElementById("shortcode2").innerHTML = "[msp musica=&quot;" + values.join(", ") + "&quot;]";
+}
+
 function micsongsMc() {
   var cat = document.getElementById("mc").value;
-  document.getElementById("shortcode3").innerHTML = "[mc categoria=&quot;" + cat + "&quot;]";
+  document.getElementById("shortcode3").innerHTML = "[msc categoria=&quot;" + cat + "&quot;]";
 }
