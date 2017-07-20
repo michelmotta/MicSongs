@@ -12,6 +12,7 @@
 
 class micsongs
 {
+
 	/**
   	* This is a construct function. This function is loaded when the class is initialized. This function is responsible to load all hook wordpress functions
   	* @param none
@@ -20,6 +21,7 @@ class micsongs
   	public function __construct() 
   	{
 
+      register_activation_hook( __FILE__, array($this, 'micsongs_db_install'));
 		  add_action('init', array($this, 'micsongs_post_type'));
       add_action('init', array($this, 'create_micsongs_taxonomies'), 0);
       add_action('save_post', array($this, 'micsongs_meta_save'));
@@ -35,6 +37,27 @@ class micsongs
 		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
   
   	}
+
+    function micsongs_db_install() {
+
+      global $wpdb;
+
+      $table_name = $wpdb->prefix . 'micsongs_downloads';
+      
+      $charset_collate = $wpdb->get_charset_collate();
+
+      $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        song_id int(100) NOT NULL,
+        song_name varchar(150) NOT NULL,
+        song_downloads int(100) NOT NULL,
+        time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+        PRIMARY KEY  (id)
+      ) $charset_collate;";
+
+      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+      dbDelta( $sql );
+    }
 
 
   	/**
@@ -189,7 +212,7 @@ class micsongs
     $columns = array(
       'cb' => '<input type="checkbox" />',
       'title' => __('Title'),
-      'micsongs_icon' => __(''),
+      'micsongs_icon' => __('Downloads'),
       'micsongs_size' => __('Tempo da Música'),
       'micsongs_categories' => __('Categorias'),
       'date' => __('Date')
