@@ -11,7 +11,5 @@ if($musica){
     Your browser does not support the audio tag.
   </audio> 
   <p id="song-download-mss" ><a href="<?php echo $songurl;?>" class="download-song" data-songid="<?php echo $musica;?>" data-songname="<?php echo $songTitle;?>" download>Baixe essa música</a></p>
-
-  <p id="resposta"></p>
 <?php
 }
