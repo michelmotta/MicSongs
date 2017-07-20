@@ -26,6 +26,10 @@ class micsongs
       add_filter('manage_micsongs_posts_columns', array($this, 'micsongs_set_custom_edit_columns'));
       add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
 
+      add_shortcode('mss', array($this,'micsongsMss_shortcode'));
+      //add_shortcode('msp', array($this,'micsongsMsp_shortcode'));
+      //add_shortcode('msc', array($this,'micsongsMsc_shortcode'));
+
       add_action('admin_menu', array($this,'micsongs_options_page'));
 
 		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
@@ -267,7 +271,7 @@ class micsongs
             <h2>Músicas Separadas</h2>
             <select id="ms" onchange="micsongsMs()" class="select2">
             <?php if ($wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
-              <option value="<?php the_title();?>"><?php the_title();?></option>
+              <option value="<?php the_ID();?>"><?php the_title();?></option>
             <?php endwhile; wp_reset_query();  else: ?>
               <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
             <?php endif; ?>
@@ -304,6 +308,28 @@ class micsongs
         </div>
       </div>
     <?php
+  }
+
+  /**
+  * This function generates a shortcode struture to be used with the micslider custom post type
+  * @param $atts
+  * @param $content = null
+  * @return $content
+  */
+  function micsongsMss_shortcode($atts, $content = null) 
+  {
+    extract(shortcode_atts(array(
+      "musica" => '',
+    ), $atts));
+
+    ob_start();
+    
+    include 'includes/loopmss.php';
+
+    $content = ob_get_contents();
+    ob_end_clean();
+    
+    return $content;
   }
 
   /**
