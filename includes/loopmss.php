@@ -10,6 +10,8 @@ if($musica){
     <source src="<?php echo $songurl;?>" type="audio/mpeg">
     Your browser does not support the audio tag.
   </audio> 
-  <p id="song-download-mss"><a href="<?php echo $songurl;?>" download>Baixe essa música</a></p>
+  <p id="song-download-mss" ><a href="<?php echo $songurl;?>" class="download-song" data-songid="<?php echo $musica;?>" data-songname="<?php echo $songTitle;?>" download>Baixe essa música</a></p>
+
+  <p id="resposta"></p>
 <?php
 }
