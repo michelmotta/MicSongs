@@ -34,7 +34,11 @@ class micsongs
 
       add_action('admin_menu', array($this,'micsongs_options_page'));
 
-		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts'));
+		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_admin'));
+
+      add_action('wp_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_frontend'));
+      add_action('wp_ajax_micsongs_downloads', array($this,'micsongs_downloads'));
+      add_action('wp_ajax_nopriv_micsongs_downloads', array($this,'micsongs_downloads'));
   
   	}
 
@@ -42,15 +46,15 @@ class micsongs
 
       global $wpdb;
 
-      $table_name = $wpdb->prefix . 'micsongs_downloads';
+      $table = $wpdb->prefix . 'micsongs_downloads';
       
       $charset_collate = $wpdb->get_charset_collate();
 
-      $sql = "CREATE TABLE $table_name (
+      $sql = "CREATE TABLE $table (
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         song_id int(100) NOT NULL,
         song_name varchar(150) NOT NULL,
-        song_downloads int(100) NOT NULL,
+        song_downloads int(100) DEFAULT '0',
         time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
         PRIMARY KEY  (id)
       ) $charset_collate;";
@@ -212,7 +216,8 @@ class micsongs
     $columns = array(
       'cb' => '<input type="checkbox" />',
       'title' => __('Title'),
-      'micsongs_icon' => __('Downloads'),
+      'micsongs_icon' => __(''),
+      'micsongs_downloads' => __('Downloads'),
       'micsongs_size' => __('Tempo da Música'),
       'micsongs_categories' => __('Categorias'),
       'date' => __('Date')
@@ -231,7 +236,20 @@ class micsongs
   {
     switch ( $column ) {
       case 'micsongs_icon' :
-          echo '<div class="dashicons-before dashicons-format-audio"></div>';
+        echo "<div class='dashicons-before dashicons-format-audio icon-space'></div>";
+      break;
+
+      case 'micsongs_downloads' :
+        global $wpdb;
+        $table = $wpdb->prefix . 'micsongs_downloads';
+
+        $row = $wpdb->get_row("SELECT * FROM $table WHERE song_id=$post_id", ARRAY_A);
+    
+        if($row){
+          echo  $row['song_downloads'];
+        }else{
+          echo "0";
+        }  
       break;
 
       case 'micsongs_size' :
@@ -360,7 +378,45 @@ class micsongs
   * @param none
   * @return void
   */
-  function micsongs_wp_enqueue_scripts() 
+  function micsongs_downloads() 
+  {
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'micsongs_downloads';
+
+    $songId = $_POST['songId'];
+    $songName = $_POST['songName'];
+
+    $row = $wpdb->get_row("SELECT * FROM $table WHERE song_id=$songId", ARRAY_A);
+    
+    if($row){
+      $row['song_downloads'] = $row['song_downloads'] + 1;
+      $wpdb->update( 
+        $table, 
+        array( 
+          'song_downloads' => $row['song_downloads'],
+          'time' => current_time('mysql')
+        ), 
+        array('song_id' => $songId)
+      );
+    }else{
+      $wpdb->insert($table, array(
+        'song_id' => $songId, 
+        'song_name' => $songName,
+        'song_downloads' => 1,
+        'time' => current_time('mysql')
+      ));
+    }
+    exit;
+  }
+
+
+  /**
+  * This function add Jquery script to open wordpress media uploader
+  * @param none
+  * @return void
+  */
+  function micsongs_wp_enqueue_scripts_admin() 
   {
 		wp_enqueue_media();
 
@@ -375,8 +431,24 @@ class micsongs
 
     wp_register_script('micsongs_select2js', plugins_url('MicSongs/js/select2.min.js'), array('jquery'), '3.3.7', true );
     wp_enqueue_script('micsongs_select2js');
+
+    wp_register_script('download_counterjs', plugins_url('MicSongs/js/download_counter.js'), array('jquery'), '3.3.7', true );
+    wp_enqueue_script('download_counterjs');
     
   }	
+
+  /**
+  * This function add Jquery script to open wordpress media uploader
+  * @param none
+  * @return void
+  */
+  function micsongs_wp_enqueue_scripts_frontend() 
+  {
+
+    wp_enqueue_script('download_counterjs', plugins_url('MicSongs/js/download_counter.js'), array('jquery'), null, false);
+    wp_localize_script('download_counterjs', 'WPaAjax',array('ajaxurl' => admin_url( 'admin-ajax.php' )));
+    
+  } 
   
 }
 
