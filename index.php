@@ -14,119 +14,127 @@ class micsongs
 {
 
 	/**
-  	* This is a construct function. This function is loaded when the class is initialized. This function is responsible to load all hook wordpress functions
-  	* @param none
-  	* @return void
-  	*/
-  	public function __construct() 
-  	{
+	* @param none
+	* @return void
+	*/
+	public function __construct() 
+	{
 
-      register_activation_hook( __FILE__, array($this, 'micsongs_db_install'));
-		  add_action('init', array($this, 'micsongs_post_type'));
-      add_action('init', array($this, 'create_micsongs_taxonomies'), 0);
-      add_action('save_post', array($this, 'micsongs_meta_save'));
-      add_filter('manage_micsongs_posts_columns', array($this, 'micsongs_set_custom_edit_columns'));
-      add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
+    register_activation_hook( __FILE__, array($this, 'micsongs_db_install'));
 
-      add_shortcode('mss', array($this,'micsongsMss_shortcode'));
-      //add_shortcode('msp', array($this,'micsongsMsp_shortcode'));
-      //add_shortcode('msc', array($this,'micsongsMsc_shortcode'));
+	  add_action('init', array($this, 'micsongs_post_type'));
+    add_action('init', array($this, 'create_micsongs_taxonomies'), 0);
 
-      add_action('admin_menu', array($this,'micsongs_options_page'));
+    add_action('save_post', array($this, 'micsongs_meta_save'));
 
-		  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_admin'));
+    add_filter('manage_micsongs_posts_columns', array($this, 'micsongs_set_custom_edit_columns'));
 
-      add_action('wp_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_frontend'));
-      add_action('wp_ajax_micsongs_downloads', array($this,'micsongs_downloads'));
-      add_action('wp_ajax_nopriv_micsongs_downloads', array($this,'micsongs_downloads'));
-  
-  	}
+    add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
 
-    function micsongs_db_install() {
+    add_shortcode('mss', array($this,'micsongsMss_shortcode'));
+    add_shortcode('msp', array($this,'micsongsMsp_shortcode'));
+    //add_shortcode('msc', array($this,'micsongsMsc_shortcode'));
 
-      global $wpdb;
+    add_action('admin_menu', array($this,'micsongs_options_page'));
 
-      $table = $wpdb->prefix . 'micsongs_downloads';
-      
-      $charset_collate = $wpdb->get_charset_collate();
+	  add_action('admin_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_admin'));
 
-      $sql = "CREATE TABLE $table (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        song_id int(100) NOT NULL,
-        song_name varchar(150) NOT NULL,
-        song_downloads int(100) DEFAULT '0',
-        time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-        PRIMARY KEY  (id)
-      ) $charset_collate;";
+    add_action('wp_enqueue_scripts', array($this, 'micsongs_wp_enqueue_scripts_frontend'));
 
-      require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-      dbDelta( $sql );
-    }
+    add_action('wp_ajax_micsongs_downloads', array($this,'micsongs_downloads'));
+
+    add_action('wp_ajax_nopriv_micsongs_downloads', array($this,'micsongs_downloads'));
+
+	}
 
 
-  	/**
-  	* This function creates a MicSongs wordpress custom post type inside of wordpress administration. 
-  	* @param none
-  	* @return void
-  	*/
-  	function micsongs_post_type() 
-  	{ 
-    	$labels = array(
-      	'name' => _x('Músicas', 'post type general name'),
-      	'singular_name' => _x('Música', 'post type singular name'),
-      	'add_new' => _x('Adicionar Novo', 'Nova música'),
-      	'add_new_item' => __('Nova Música'),
-      	'edit_item' => __('Editar Música'),
-      	'new_item' => __('Nova Música'),
-      	'view_item' => __('Ver Música'),
-      	'search_items' => __('Procurar Músicas'),
-      	'not_found' =>  __('Nenhum registro encontrado'),
-      	'not_found_in_trash' => __('Nenhum registro encontrado na lixeira'),
-      	'parent_item_colon' => '',
-      	'menu_name' => 'Músicas'
-   	);
+  /**
+  * @param none
+  * @return void
+  */
+  function micsongs_db_install() {
 
-    	$args = array(
-      	'labels' => $labels,
-      	'public' => false,
-      	'public_queryable' => true,
-      	'show_ui' => true,           
-      	'query_var' => true,
-      	'rewrite' => true,
-      	'capability_type' => 'post',
-      	'has_archive' => true,
-      	'menu_icon' => 'dashicons-format-audio',
-      	'hierarchical' => false,
-      	'menu_position' => null,
-      	'register_meta_box_cb' => array($this, 'micsongs_meta_box'),       
-      	'supports' => array('title', 'thumbnail')
-    	);
+    global $wpdb;
 
-    	register_post_type('micsongs' , $args );
-    	flush_rewrite_rules();
-  	}
+    $table = $wpdb->prefix . 'micsongs_downloads';
+    
+    $charset_collate = $wpdb->get_charset_collate();
 
-  	/**
-    * This function creates custom meta box to micsongs custom post type
-    * @param none
-    * @return void
-    */
-    function micsongs_meta_box()
-    {        
-      add_meta_box('micsongs_meta_box', __('Informações da música'), array($this,'micsongs_meta_box_callback'), 'micsongs', 'normal', 'default');
-    }
+    $sql = "CREATE TABLE $table (
+      id mediumint(9) NOT NULL AUTO_INCREMENT,
+      song_id int(100) NOT NULL,
+      song_name varchar(150) NOT NULL,
+      song_downloads int(100) DEFAULT '0',
+      time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+      PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+  }
 
 
-    /**
-    * This is a callback function for micslider_meta_box. This callback function generates html content to show inside the meta box
-    * @param $post
-    * @return void
-    */
-    function micsongs_meta_box_callback($post)
-    {
-      wp_nonce_field(basename( __FILE__ ), 'micsongs_nonce');
-      $micsongs_meta = get_post_meta($post->ID);
-    ?>
+	/**
+	* @param none
+	* @return void
+	*/
+	function micsongs_post_type() 
+	{ 
+  	$labels = array(
+    	'name' => _x('Músicas', 'post type general name'),
+    	'singular_name' => _x('Música', 'post type singular name'),
+    	'add_new' => _x('Adicionar Novo', 'Nova música'),
+    	'add_new_item' => __('Nova Música'),
+    	'edit_item' => __('Editar Música'),
+    	'new_item' => __('Nova Música'),
+    	'view_item' => __('Ver Música'),
+    	'search_items' => __('Procurar Músicas'),
+    	'not_found' =>  __('Nenhum registro encontrado'),
+    	'not_found_in_trash' => __('Nenhum registro encontrado na lixeira'),
+    	'parent_item_colon' => '',
+    	'menu_name' => 'Músicas'
+ 	  );
+
+  	$args = array(
+    	'labels' => $labels,
+    	'public' => false,
+    	'public_queryable' => true,
+    	'show_ui' => true,           
+    	'query_var' => true,
+    	'rewrite' => true,
+    	'capability_type' => 'post',
+    	'has_archive' => true,
+    	'menu_icon' => 'dashicons-format-audio',
+    	'hierarchical' => false,
+    	'menu_position' => null,
+    	'register_meta_box_cb' => array($this, 'micsongs_meta_box'),       
+    	'supports' => array('title', 'thumbnail')
+  	);
+
+  	register_post_type('micsongs' , $args );
+  	flush_rewrite_rules();
+	}
+
+
+	/**
+  * @param none
+  * @return void
+  */
+  function micsongs_meta_box()
+  {        
+    add_meta_box('micsongs_meta_box', __('Informações da música'), array($this,'micsongs_meta_box_callback'), 'micsongs', 'normal', 'default');
+  }
+
+
+  /**
+  * @param $post
+  * @return void
+  */
+  function micsongs_meta_box_callback($post)
+  {
+    wp_nonce_field(basename( __FILE__ ), 'micsongs_nonce');
+    $micsongs_meta = get_post_meta($post->ID);
+  ?>
    
     <div class="linha">
      	<div class="coluna-50">
@@ -149,8 +157,8 @@ class micsongs
   <?php    
   }
 
+
   /**
-  * This function is initialize always when the custom post type micslider is saved. This function is responsible to validade and persist data.
   * @param $post_id
   * @return void
   */
@@ -175,8 +183,8 @@ class micsongs
    
   }
 
+
   /**
-  * This function creates a micslider_cat wordpress custom taxonomy to organize slider by custom post type 
   * @param none
   * @return void
   */
@@ -206,8 +214,8 @@ class micsongs
     register_taxonomy('micsongs_cat', array('micsongs'), $args );
   }
 
+
   /**
-  * This function creates a custom columns display to wordpress admin view
   * @param $columns
   * @return $columns
   */
@@ -228,7 +236,6 @@ class micsongs
 
 
   /**
-  * This function generates content to the custom colums display
   * @param none
   * @return void
   */
@@ -277,8 +284,8 @@ class micsongs
     }
   }
 
+
   /**
-  * Create a micslider_cat wordpress custom taxonomy 
   * @param none
   * @return void
   */
@@ -287,8 +294,8 @@ class micsongs
     add_submenu_page( 'edit.php?post_type=micsongs', 'Shortcode', 'Shortcode', 'manage_options', 'micsongs-options', array($this, 'micsongs_options_page_callback'));
   }
 
+
   /**
-  * This is a callback function for micslider_options_page. This callback function generates html content to show inside the options page
   * @param none
   * @return void
   */
@@ -338,7 +345,7 @@ class micsongs
               <option value=''>Todas as categorias</option>
               <?php
                 foreach ($termsMc as $termMc) {
-                  echo '<option value="' . $termMc->name . '">' . $termMc->name . '</option>';
+                  echo '<option value="' . $termMc->term_id . '">' . $termMc->name . '</option>';
                 }
               ?>
             </select>
@@ -351,8 +358,8 @@ class micsongs
     <?php
   }
 
+
   /**
-  * This function generates a shortcode struture to be used with the micslider custom post type
   * @param $atts
   * @param $content = null
   * @return $content
@@ -365,7 +372,7 @@ class micsongs
 
     ob_start();
     
-    include 'includes/loopmss.php';
+    include 'includes/shortcode_mss.php';
 
     $content = ob_get_contents();
     ob_end_clean();
@@ -373,8 +380,30 @@ class micsongs
     return $content;
   }
 
+
   /**
-  * This function add Jquery script to open wordpress media uploader
+  * @param $atts
+  * @param $content = null
+  * @return $content
+  */
+  function micsongsMsp_shortcode($atts, $content = null) 
+  {
+    extract(shortcode_atts(array(
+      "musica" => '',
+    ), $atts));
+
+    ob_start();
+    
+    include 'includes/shortcode_msp.php';
+
+    $content = ob_get_contents();
+    ob_end_clean();
+    
+    return $content;
+  }
+  
+
+  /**
   * @param none
   * @return void
   */
@@ -412,41 +441,28 @@ class micsongs
 
 
   /**
-  * This function add Jquery script to open wordpress media uploader
   * @param none
   * @return void
   */
   function micsongs_wp_enqueue_scripts_admin() 
   {
 		wp_enqueue_media();
-
-    wp_register_style('micsongs_style', plugins_url('MicSongs/css/micsongs_style.css'));
-    wp_enqueue_style('micsongs_style');
-
-    wp_register_style('micsongs_select2css', plugins_url('MicSongs/css/select2.min.css'));
-    wp_enqueue_style('micsongs_select2css');
-
-    wp_register_script('micsongs_media', plugins_url('MicSongs/js/micsongs_media.js'), array('jquery'), '3.3.7', true );
-    wp_enqueue_script('micsongs_media');
-
-    wp_register_script('micsongs_select2js', plugins_url('MicSongs/js/select2.min.js'), array('jquery'), '3.3.7', true );
-    wp_enqueue_script('micsongs_select2js');
-
-    wp_register_script('download_counterjs', plugins_url('MicSongs/js/download_counter.js'), array('jquery'), '3.3.7', true );
-    wp_enqueue_script('download_counterjs');
+    wp_enqueue_style('micsongs_admin_style', plugins_url('MicSongs/css/micsongs_admin_style.css'));
+    wp_enqueue_style('micsongs_select2css', plugins_url('MicSongs/css/select2.min.css'));
+    wp_enqueue_script('main_admin', plugins_url('MicSongs/js/main_admin.js'), array('jquery'), null, true);
+    wp_enqueue_script('micsongs_select2js', plugins_url('MicSongs/js/select2.min.js'), array('jquery'), null, true);
     
   }	
+  
 
   /**
-  * This function add Jquery script to open wordpress media uploader
   * @param none
   * @return void
   */
   function micsongs_wp_enqueue_scripts_frontend() 
   {
-
-    wp_enqueue_script('download_counterjs', plugins_url('MicSongs/js/download_counter.js'), array('jquery'), null, false);
-    wp_localize_script('download_counterjs', 'WPaAjax',array('ajaxurl' => admin_url( 'admin-ajax.php' )));
+    wp_enqueue_script('main_frontendjs', plugins_url('MicSongs/js/main_frontend.js'), array('jquery'), null, true);
+    wp_localize_script('main_frontendjs', 'WPaAjax',array('ajaxurl' => admin_url( 'admin-ajax.php' )));
     
   } 
   
