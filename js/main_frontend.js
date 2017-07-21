@@ -34,7 +34,6 @@ jQuery(document).ready(function($){
     player = $('.player');
     playlist = $('.playlist');
 
-
     $.each(player, function( index, value ) {
 
       tracks = $(playlist[index]).children('li a');
@@ -58,8 +57,18 @@ jQuery(document).ready(function($){
         }
         run($(link),player[index]);
       });
-      
+
+      link = $(playlist[index]).find('a:not(.block)')[0];
+      loadFirstTrack($(link),player[index]);
+
     });
+  }
+
+  function loadFirstTrack(link, player){
+    player.src = link.attr('href');
+    par = link.parent();
+    par.addClass('active').siblings().removeClass('active');
+    player.load();
   }
 
   function run(link, player){
