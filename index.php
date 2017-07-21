@@ -463,6 +463,8 @@ class micsongs
   {
     wp_enqueue_script('main_frontendjs', plugins_url('MicSongs/js/main_frontend.js'), array('jquery'), null, true);
     wp_localize_script('main_frontendjs', 'WPaAjax',array('ajaxurl' => admin_url( 'admin-ajax.php' )));
+
+    wp_enqueue_style('micsongs_frontend_style', plugins_url('MicSongs/css/micsongs_frontend_style.css'));
     
   } 
   
