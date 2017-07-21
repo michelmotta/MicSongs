@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+.micsongs-player{
+	background: #201F25;
+	box-shadow: 0 1px 1px #000;
+}
+.micsongs-player ol{
+	color: #fff;
+	padding: 10px;
+	margin-left: 20px !important;
+}
+.micsongs-player ol li{
+	margin-bottom: 10px;
+}
+.micsongs-player ol li a{
+	text-decoration: none !important;
+	font-family: 'Roboto', sans-serif;
+	color: #fff;
+}
+.active{
+	border-bottom: 1px solid #fff !important;
+}
