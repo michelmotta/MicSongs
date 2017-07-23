@@ -37,3 +37,18 @@
 .icon-space::before{
 	margin-right: 20px;
 }
+.select2-container .select2-selection--multiple {
+    min-height: 29px !important;
+}
+.select2-selection__rendered li{
+	margin-bottom: 2px !important; 
+}
+.select2-container .select2-selection--single {
+    height: 33px !important;
+}
+.micsongs-up{
+	color: #00FF00;
+}
+.micsongs-down{
+	color: #FF0000;
+}
