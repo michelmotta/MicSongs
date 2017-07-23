@@ -31,9 +31,9 @@ class micsongs
 
     add_action('manage_micsongs_posts_custom_column', array($this, 'micsongs_custom_column'), 10, 2 );
 
-    add_shortcode('mss', array($this,'micsongsMss_shortcode'));
-    add_shortcode('msp', array($this,'micsongsMsp_shortcode'));
-    //add_shortcode('msc', array($this,'micsongsMsc_shortcode'));
+    add_shortcode('msc', array($this, 'micsongsMsc_shortcode'));
+    add_shortcode('msp', array($this, 'micsongsMsp_shortcode'));
+    add_shortcode('mss', array($this, 'micsongsMss_shortcode'));
 
     add_action('admin_menu', array($this,'micsongs_options_page'));
 
@@ -142,6 +142,11 @@ class micsongs
         <input type="text" id="song-url" name="song-url" class="song-input" value="<?php if(isset($micsongs_meta['song-url'])) echo $micsongs_meta['song-url'][0]; ?>" readonly="readonly"/><br><br>
 
         <center><input id="micsong_upload_button" class="button button-primary button-large" type="button" value="Upload música" /></center>
+        <br><br>
+        <label for="meta-checkbox">
+            <input type="checkbox" name="song-allow-download" value="yes" <?php if (isset($micsongs_meta['song-allow-download'])) checked( $micsongs_meta['song-allow-download'][0], 'yes' ); ?> />
+            <?php _e( 'Permitir download da música' )?>
+        </label>
 
      	</div>
      	<div class="coluna-50">
@@ -180,6 +185,12 @@ class micsongs
 
     if(isset($_POST['song-description'])) 
       update_post_meta($post_id, 'song-description', sanitize_text_field($_POST['song-description']));
+
+    if(isset($_POST['song-allow-download'])) {
+      update_post_meta( $post_id, 'song-allow-download', 'yes');
+    } else {
+      update_post_meta($post_id, 'song-allow-download', '');
+    }
    
   }
 
@@ -224,7 +235,7 @@ class micsongs
     $columns = array(
       'cb' => '<input type="checkbox" />',
       'title' => __('Title'),
-      'micsongs_icon' => __(''),
+      'micsongs_icon' => __('Permissão de Download'),
       'micsongs_downloads' => __('Downloads'),
       'micsongs_size' => __('Tempo da Música'),
       'micsongs_categories' => __('Categorias'),
@@ -243,7 +254,11 @@ class micsongs
   {
     switch ( $column ) {
       case 'micsongs_icon' :
-        echo "<div class='dashicons-before dashicons-format-audio icon-space'></div>";
+        $allowDownload = get_post_meta($post_id, 'song-allow-download', true);
+        if($allowDownload == 'yes')
+          echo "<span class='dashicons dashicons-thumbs-up micsongs-up'></span> Permitido";
+        else
+          echo "<span class='dashicons dashicons-thumbs-down micsongs-down'></span> Bloqueado";
       break;
 
       case 'micsongs_downloads' :
@@ -324,32 +339,31 @@ class micsongs
               <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
             <?php endif; ?>
             </select>
-            <h2>Shortcode MS</h2>
+            <h2>Shortcode MSS</h2>
             <p id="shortcode1"></p>
           </div>
           <div class="coluna-30">
             <h2>Músicas em Playlist</h2>
-            <select id="mp" onchange="micsongsMp()" class="select2-tag">
+            <select id="mp" onchange="micsongsMp()" class="select2-tag1">
             <?php if ($wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
               <option value="<?php the_ID();?>"><?php the_title();?></option>
             <?php endwhile; wp_reset_query();  else: ?>
               <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
             <?php endif; ?>
             </select>
-            <h2>Shortcode MP</h2>
+            <h2>Shortcode MSP</h2>
             <p id="shortcode2"></p>
           </div> 
           <div class="coluna-30">
             <h2>Músicas por Categorias (Playlist)</h2>
-            <select id="mc" onchange="micsongsMc()" class="select2">
-              <option value=''>Todas as categorias</option>
+            <select id="mc" onchange="micsongsMc()" class="select2-tag2">
               <?php
                 foreach ($termsMc as $termMc) {
                   echo '<option value="' . $termMc->term_id . '">' . $termMc->name . '</option>';
                 }
               ?>
             </select>
-            <h2>Shortcode MC</h2>
+            <h2>Shortcode MSC</h2>
             <p id="shortcode3"></p>
           </div>
           <div style="clear: both;"></div>
@@ -364,15 +378,15 @@ class micsongs
   * @param $content = null
   * @return $content
   */
-  function micsongsMss_shortcode($atts, $content = null) 
+  function micsongsMsc_shortcode($atts, $content = null) 
   {
     extract(shortcode_atts(array(
-      "musica" => '',
+      "categoria" => '',
     ), $atts));
 
     ob_start();
     
-    include 'includes/shortcode_mss.php';
+    include 'includes/shortcode_msc.php';
 
     $content = ob_get_contents();
     ob_end_clean();
@@ -401,7 +415,29 @@ class micsongs
     
     return $content;
   }
-  
+
+
+  /**
+  * @param $atts
+  * @param $content = null
+  * @return $content
+  */
+  function micsongsMss_shortcode($atts, $content = null) 
+  {
+    extract(shortcode_atts(array(
+      "musica" => '',
+    ), $atts));
+
+    ob_start();
+    
+    include 'includes/shortcode_mss.php';
+
+    $content = ob_get_contents();
+    ob_end_clean();
+    
+    return $content;
+  }
+
 
   /**
   * @param none
@@ -465,6 +501,8 @@ class micsongs
     wp_localize_script('main_frontendjs', 'WPaAjax',array('ajaxurl' => admin_url( 'admin-ajax.php' )));
 
     wp_enqueue_style('micsongs_frontend_style', plugins_url('MicSongs/css/micsongs_frontend_style.css'));
+
+    wp_enqueue_script('bootstrap.minjs', plugins_url('MicSongs/js/bootstrap.min.js'), array('jquery'), null, true);
     
   } 
   
