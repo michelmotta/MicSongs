@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css);
 .micsongs-player{
 	background: #201F25;
 	box-shadow: 0 1px 1px #000;
+	background-image: url(../images/noisy_net.png);
 }
 .micsongs-player ol{
 	color: #fff;
@@ -17,5 +19,40 @@
 	color: #fff;
 }
 .active{
+	font-weight: bold;
 	border-bottom: 1px solid #fff !important;
+}
+#song-download-mss{
+	text-decoration: none !important;
+	font-family: 'Roboto', sans-serif;
+	color: #fff;
+	padding: 10px;
+	margin-bottom: 0px;
+}
+#song-download-mss a{
+	text-decoration: none !important;
+	font-family: 'Roboto', sans-serif;
+	color: #fff;
+}
+#song-name-mss{
+	margin-bottom: 10px;
+	font-family: 'Roboto', sans-serif;
+}
+#song-description-mss{
+	font-family: 'Roboto', sans-serif;
+}
+.block{
+	margin-right: 15px;
+}
+.songDescription{
+	font-family: 'Roboto', sans-serif;
+	color: #fff;
+	padding: 10px;
+	font-weight: normal;
+}
+#category{
+	font-family: 'Roboto', sans-serif;
+	font-size: 22px;
+	color: #fff;
+	margin-bottom: 0px;
 }
