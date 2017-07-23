@@ -5,8 +5,18 @@ jQuery(function($) {
   $(document).ready(function(){
   	$('#micsong_upload_button').click(open_media_window);
     $(".select2").select2({ width: '100%' });
-    $(".select2-tag").select2({ multiple: true, tags: true, width: '100%' });
+    $(".select2-tag1").select2({ multiple: true, tags: true, width: '100%', placeholder: "Selecione uma ou mais opções"});
+    $(".select2-tag2").select2({ multiple: true, tags: true, width: '100%', placeholder: "Selecione uma ou mais opções"});
     $(".leaderMultiSelctdropdown").select2("val");
+
+    var name = document.getElementById("ms").value;
+    document.getElementById("shortcode1").innerHTML = "[mss musica=&quot;" + name + "&quot;]";
+
+    var values = jQuery('.select2-tag1').select2("val");
+    document.getElementById("shortcode2").innerHTML = "[msp musica=&quot;" + values.join(", ") + "&quot;]";
+
+    var values = jQuery('.select2-tag2').select2("val");
+    document.getElementById("shortcode3").innerHTML = "[msc categoria=&quot;" + values.join(", ") + "&quot;]";
   });
 
   function open_media_window() {
@@ -48,7 +58,7 @@ function micsongsMs() {
 * Function for generate sortcode
 */
 function micsongsMp() {
-  var values = jQuery('.select2-tag').select2("val");
+  var values = jQuery('.select2-tag1').select2("val");
   document.getElementById("shortcode2").innerHTML = "[msp musica=&quot;" + values.join(", ") + "&quot;]";
 }
 
@@ -57,6 +67,6 @@ function micsongsMp() {
 * Function for generate sortcode
 */
 function micsongsMc() {
-  var cat = document.getElementById("mc").value;
-  document.getElementById("shortcode3").innerHTML = "[msc categoria=&quot;" + cat + "&quot;]";
+  var values = jQuery('.select2-tag2').select2("val");
+  document.getElementById("shortcode3").innerHTML = "[msc categoria=&quot;" + values.join(", ") + "&quot;]";
 }
